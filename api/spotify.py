@@ -81,7 +81,6 @@ def barGen(barCount):
     left = 1
     for i in range(1, barCount + 1):
         anim = random.randint(500, 1000)
-        # below code generates random cubic-bezier values
         x1 = random.random()
         y1 = random.random()*2
         x2 = random.random()
@@ -164,6 +163,17 @@ def makeSVG(data, background_color, border_color):
     return render_template(getTemplate(), **dataDict)
 
 
+@app.route("/url", defaults={"path": ""})
+@app.route("/<path:path>/url")
+def url(path):
+    try:
+        data = get(NOW_PLAYING_URL)
+    except Exception:
+        data = get(RECENTLY_PLAYING_URL)
+
+    return redirect(data["item"]["external_urls"]["spotify"])
+
+
 @app.route("/", defaults={"path": ""})
 @app.route("/<path:path>")
 @app.route('/with_parameters')
@@ -182,18 +192,6 @@ def catch_all(path):
     resp.headers["Cache-Control"] = "s-maxage=1"
 
     return resp
-
-
-@app.route("/url", defaults={"path": ""})
-@app.route("/<path:path>/url")
-def url(path):
-    try:
-        data = get(NOW_PLAYING_URL)
-    except Exception:
-        data = get(RECENTLY_PLAYING_URL)
-
-    print(data)
-    return redirect(data["item"]["external_urls"]["spotify"])
 
 
 if __name__ == "__main__":
